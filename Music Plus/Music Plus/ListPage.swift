@@ -188,6 +188,8 @@ class ListPVCPersonal: UIViewController, UITableViewDelegate, UITableViewDataSou
                         var json2 = try JSONDecoder().decode(SongDownload.self, from: data)
                         print("song_address", json2.song_address)
                         self.downloadFile(url: json2.song_address)
+                        print(FileManager.default)
+                        print(Bundle.main.resourcePath)
                     }
                     catch{
                         print(error)
@@ -203,6 +205,9 @@ class ListPVCPersonal: UIViewController, UITableViewDelegate, UITableViewDataSou
         
     }
     
+    var audioPlayer = AVAudioPlayer()
+    var songname = String()
+    
     func downloadFile(url: URL) {
         let downloadRequest = URLRequest(url: url)
         URLSession.shared.downloadTask(with: downloadRequest) { location, response, error in
@@ -213,6 +218,10 @@ class ListPVCPersonal: UIViewController, UITableViewDelegate, UITableViewDataSou
                 let fullURL = try documentDirectory.appendingPathComponent((response?.suggestedFilename!)!)
                 try FileManager.default.moveItem(at: tempLocation, to: fullURL)
                 print("saved at \(fullURL) ")
+                self.songname = fullURL.lastPathComponent
+                print(self.songname)
+                self.audioPlayer = try AVAudioPlayer(contentsOf: fullURL)
+                self.audioPlayer.play()
             } catch CocoaError.fileReadNoSuchFileError {
                 print("No such file")
             } catch {
